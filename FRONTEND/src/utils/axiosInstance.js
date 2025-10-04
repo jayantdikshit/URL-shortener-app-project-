@@ -1,8 +1,8 @@
-import axios from "axios"
+import axios from "axios";
 
 // Determine the correct base URL based on the environment
-// 1. If VITE_API_BASE_URL is set (like on Vercel), use it.
-// 2. Otherwise, fall back to localhost for local development.
+// Check for the Vercel-set environment variable (VITE_API_BASE_URL).
+// If it exists, use it. Otherwise, fall back to localhost for local development.
 const BASE_URL =
     import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
@@ -10,7 +10,7 @@ const axiosInstance = axios.create({
     baseURL: BASE_URL,
     timeout: 10000, // 10s
     withCredentials: true
-})
+});
 
 // Response interceptor
 axiosInstance.interceptors.response.use(
@@ -52,13 +52,16 @@ axiosInstance.interceptors.response.use(
             console.error("Error:", error.message);
         }
 
-        // You can customize the error object before rejecting
+        // We use traditional ternary operators instead of optional chaining (?.)
+        // to avoid the Vercel build error (ERROR: Unexpected ".").
+        const responseData = error.response ? error.response.data : {};
+        const errorMessage = responseData.message || error.message || "Unknown error occurred";
+        const errorStatus = error.response ? error.response.status : undefined;
+
         return Promise.reject({
-            // isAxiosError: true,
-            message: error.response ? .data ? .message || error.message || "Unknown error occurred",
-            status: error.response ? .status,
-            data: error.response ? .data,
-            // originalError: error
+            message: errorMessage,
+            status: errorStatus,
+            data: responseData,
         });
     }
 );
