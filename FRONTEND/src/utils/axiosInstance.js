@@ -1,9 +1,15 @@
 import axios from "axios"
 
+// Determine the correct base URL based on the environment
+// 1. If VITE_API_BASE_URL is set (like on Vercel), use it.
+// 2. Otherwise, fall back to localhost for local development.
+const BASE_URL =
+    import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
 const axiosInstance = axios.create({
-    baseURL:"http://localhost:3000",
-    timeout:10000, //10s
-    withCredentials:true
+    baseURL: BASE_URL,
+    timeout: 10000, // 10s
+    withCredentials: true
 })
 
 // Response interceptor
@@ -17,7 +23,7 @@ axiosInstance.interceptors.response.use(
         if (error.response) {
             // The server responded with a status code outside the 2xx range
             const { status, data } = error.response;
-            
+
             switch (status) {
                 case 400:
                     console.error("Bad Request:", data);
@@ -49,11 +55,12 @@ axiosInstance.interceptors.response.use(
         // You can customize the error object before rejecting
         return Promise.reject({
             // isAxiosError: true,
-            message: error.response?.data?.message || error.message || "Unknown error occurred",
-            status: error.response?.status,
-            data: error.response?.data,
+            message: error.response ? .data ? .message || error.message || "Unknown error occurred",
+            status: error.response ? .status,
+            data: error.response ? .data,
             // originalError: error
         });
     }
 );
-export default axiosInstance
+
+export default axiosInstance;
